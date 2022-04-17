@@ -1,8 +1,8 @@
 # Small world (β)
-Small world is a Foundry VTT (ver 9) mod that uses DeepL and the Microsoft Translator API to allow instant translation of chats.
-It also has the ability to randomly create notations in the language of yout imaginary worlds without communicating with the API.
-(Note that this is done by encryption and has no grammatical rules.Use it to improve the mood of the place.)
-Two APIs can be used for each user, or other users can delegate translations to their GM user if the user with GM permissions has registered two APIs (world setting, disabled by default).
+Small world is a Foundry VTT (ver 9) mod that uses DeepL and the Microsoft Translator API to allow instant translation of chats.  
+It also has the ability to randomly create notations in the language of yout imaginary worlds without communicating with the API.  
+(Note that this is done by encryption and has no grammatical rules.Use it to improve the mood of the place.)  
+Two APIs can be used for each user, or other users can delegate translations to their GM user if the user with GM permissions has registered two APIs (world setting, disabled by default).  
 Simultaneously translate from one language to two different languages, and the display of the translation results can be configured for each user.
  (e.g., you: as is, game master: as is, user 2: first foreign language, user 3: second foreign language, etc.)
 
@@ -20,7 +20,7 @@ Simultaneously translate from one language to two different languages, and the d
 
 
 ## Function
-If this mod is enabled, a button and select box will appear between the chat log and the input field (if activated without problems). This section describes the chat input fields and the buttons and boxes that appear.
+If this mod is enabled, a button and select box will appear between the chat log and the input field (if activated without problems).   This section describes the chat input fields and the buttons and boxes that appear.
 
 - **Encryption (local) or DeepL (API) or Microsoft Translator (API)**(Button): Each time the button here is clicked, it changes the available translation (encryption) functions in order from DeepL, Microsoft Translator, and Encryption. Each time you change, the choice in the select box next to it will automatically change as well (once changed, the selection in the select box before the change will be cleared and the value will be "Target language").The same user retains the last state even after reloading or re-logging in.
 
