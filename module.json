@@ -22,5 +22,8 @@
             "path": "lang/en.json"
         }
     ],
-    "socket": true
+    "socket": true,
+    "url" : "https://github.com/AdmiralNyar/small-world",
+    "manifest" : "https://github.com/AdmiralNyar/small-world/raw/master/module.json",
+    "download" : "https://github.com/AdmiralNyar/small-world/archive/0.1.0.zip"
 }
