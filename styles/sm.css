@@ -1,0 +1,197 @@
+/*
+Link: https://umihotaru.work
+created by うみほたる(https://twitter.com/umihotarus)
+License: https://umihotaru.work/faq.txt
+*/
+@font-face {
+    font-family:'Nishiki-teki';
+    src: url('../fonts/nishiki-teki.ttf') format('truetype')
+}
+
+/*https://fontlibrary.org/en/font/voynich
+created by William Porquet 
+License: Public Domain*/
+@font-face {
+    font-family: "Voynich";
+    src: url('../fonts/voynich-1.23-webfont.ttf') format('truetype')
+}
+
+/*license: Public Domain
+created by Pixel Kitchen
+link: https://www.fontspace.com/madrona-font-f32720 */
+@font-face {
+    font-family: "Madrona";
+    src: url('../fonts/MadronaRegular-Mjav.ttf') format('truetype')
+}
+
+/*license: Public Domain
+created by Pixel Kitchen
+link: https://www.fontspace.com/evoken-font-f40854 */
+@font-face {
+    font-family: "Evoken";
+    src: url('../fonts/EvokenRegular-axxp5.ttf') format('truetype')
+}
+
+/*Copyright (c) 2020,  “一条創弥 / SOYA_one”
+Twitter: @SOYA_one @SOYA_1st
+link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at:
+http://scripts.sil.org/OFL*/
+@font-face {
+    font-family: "Gavelk";
+    src: url('../fonts/GavelkSerif-Regular.ttf') format('truetype')
+}
+
+/*Copyright (c) 2020,  “一条創弥 / SOYA_one”
+Twitter: @SOYA_one @SOYA_1st
+link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at:
+http://scripts.sil.org/OFL*/
+@font-face {
+    font-family: "OldGavelk";
+    src: url('../fonts/OldGavelkSerif.ttf') format('truetype')
+}
+
+/*Copyright (c) 2020,  “一条創弥 / SOYA_one”
+Twitter: @SOYA_one @SOYA_1st
+link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at:
+http://scripts.sil.org/OFL*/
+@font-face {
+    font-family: "Divinish";
+    src: url('../fonts/Divinish.ttf') format('truetype')
+}
+
+/*Copyright (c) 2020,  “一条創弥 / SOYA_one”
+Twitter: @SOYA_one @SOYA_1st
+link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at:
+http://scripts.sil.org/OFL*/
+@font-face {
+    font-family: "Grasstext";
+    src: url('../fonts/Grasstext.ttf') format('truetype')
+}
+
+/*Copyright (c) 2020,  “一条創弥 / SOYA_one”
+Twitter: @SOYA_one @SOYA_1st
+link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at:
+http://scripts.sil.org/OFL*/
+@font-face {
+    font-family: "Reptilian";
+    src: url('../fonts/Reptilian.ttf') format('truetype')
+}
+
+/*Copyright (c) 2018,  “一条創弥 / SOYA_one”
+Twitter: @SOYA_one @SOYA_1st
+link: https://ichijosoya.wixsite.com/soyaworkshop/kushudian
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at:
+http://scripts.sil.org/OFL
+*/
+@font-face {
+    font-family: "Kushudian";
+    src: url('../fonts/Kushudian-Serif.ttf') format('truetype')
+}
+
+/*Copyright (c) 2021,  “一条創弥 / SOYA_1st / SOYA-001”
+Twitter: @SOYA_1st
+link: https://ichijosoya.wixsite.com/soyaworkshop/thaumatology
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at:
+http://scripts.sil.org/OFL*/
+@font-face {
+    font-family: "thaumatology";
+    src: url('../fonts/thaumatology-round.ttf') format('truetype')
+}
+
+/*Copyright (c) 2018,  “一条創弥 / SOYA_one”
+Twitter: @SOYA_one @SOYA_1st
+link: https://ichijosoya.wixsite.com/soyaworkshop/ultracode
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is available with a FAQ at:
+http://scripts.sil.org/OFL*/
+@font-face {
+    font-family: "UltraCode";
+    src: url('../fonts/UltraCode.ttf') format('truetype')
+}
+
+/*
+creted by Propnomicon
+link: http://propnomicon.blogspot.com/2014/03/rlyeh-runes-version-1.html
+Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License.
+*/
+@font-face {
+    font-family: "RlyehRunes";
+    src: url('../fonts/RlyehRunesV1.ttf') format('truetype')
+}
+
+
+span.small-world-font-Piqd{
+    font-family: 'Nishiki-teki';
+    font-size: large;
+}
+
+span.small-world-font-Voynich{
+    font-family: 'Voynich';
+    font-size: large;
+}
+
+span.small-world-font-Madrona{
+    font-family: 'Madrona';
+}
+
+span.small-world-font-Evoken{
+    font-family: 'Evoken';
+    font-size: large;
+}
+
+span.small-world-font-Gavelk{
+    font-family: 'Gavelk';
+    font-size: x-large;
+}
+
+span.small-world-font-OldGavelk{
+    font-family: 'OldGavelk';
+    font-size: x-large;
+}
+
+span.small-world-font-Divinish{
+    font-family: 'Divinish';
+    font-size: x-large;
+}
+
+span.small-world-font-Grasstext{
+    font-family: 'Grasstext';
+    font-size: xx-large;
+}
+
+span.small-world-font-Reptilian{
+    font-family: 'Reptilian';
+    font-size: xx-large;
+}
+
+span.small-world-font-Kushudian{
+    font-family: "Kushudian";
+    font-size: x-large;
+}
+
+span.small-world-font-thaumatology{
+    font-family: 'thaumatology';
+    font-size: large;
+}
+
+span.small-world-font-UltraCode{
+    font-family: 'UltraCode';
+    font-size: xx-large;
+}
+
+span.small-world-font-RlyehRunes{
+    font-family: 'RlyehRunes';
+    font-size: x-large;
+}

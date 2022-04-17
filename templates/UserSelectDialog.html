@@ -1,0 +1,20 @@
+<form id="select-user-lang">
+    <div>
+        <label>{{localize 'SMALLW.UserTargetLangSelect'}}</label>
+    </div>
+    <div style="display: flex;">
+        <ol id="playersortable">
+            {{#each users}}
+                <li class="order" id="{{@index}}" data-id="{{@index}}" draggable="true" style="display: flex;height: 30px;" data-playerid="{{this.id}}" data-name="{{this.name}}">
+                    <div style="width:200px;">{{this.name}}</div>
+                    <div style="width:400px">
+                        <input value="0" id="{{this.id}}_0" name="{{this.id}}" type="radio" {{#uniqueif this.type "==" 0}}checked="checked"{{else}}{{/uniqueif}}><label for="{{this.id}}_0"><a>{{localize 'SMALLW.WithoutChange'}}</a></label>
+                        <input value="1" id="{{this.id}}_1" name="{{this.id}}" type="radio" {{#uniqueif this.type "==" 1}}checked="checked"{{else}}{{/uniqueif}}><label for="{{this.id}}_1"><a>{{localize 'SMALLW.FirstLang'}}</a></label>
+                        {{#if ../bilingal}}<input value="2" id="{{this.id}}_2" name="{{this.id}}" type="radio" {{#uniqueif this.type "==" 2}}checked="checked"{{else}}{{/uniqueif}}><label for="{{this.id}}_2"><a>{{localize 'SMALLW.SecondLang'}}</a></label>{{/if}}
+                    </div>
+                </li>
+            {{/each}}
+        </ol>
+        <input type="hidden" name="list_order" id="last_order">
+    </div>
+</form>
