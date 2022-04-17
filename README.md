@@ -63,69 +63,69 @@ The fonts used in this mod are composed of the following great fonts.
 **I would like to take this opportunity to thank the creators of these fonts for providing them and making them widely available.**
 
 - **Nishiki-teki**:
-    * - Link: https://umihotaru.work
-    * - created by: [うみほたる](https://twitter.com/umihotarus)
-    * - License: [Text(in Japanese)](https://umihotaru.work/faq.txt)
+    * Link: https://umihotaru.work
+    * created by: [うみほたる](https://twitter.com/umihotarus)
+    * License: [Text(in Japanese)](https://umihotaru.work/faq.txt)
 
 - **Voynich-1.23-webfont**:
-    * - Link: https://fontlibrary.org/en/font/voynich
-    * - created by: William Porquet 
-    * - License: Public Domain
+    * Link: https://fontlibrary.org/en/font/voynich
+    * created by: William Porquet 
+    * License: Public Domain
 
 - **MadronaRegular-Mjav**:
-    * - Link: https://www.fontspace.com/madrona-font-f32720
-    * - Created by: Pixel Kitchen
-    * - License: Public Domain
+    * Link: https://www.fontspace.com/madrona-font-f32720
+    * Created by: Pixel Kitchen
+    * License: Public Domain
 
 - **EvokenRegular-axxp5**:
-    * - Link: https://www.fontspace.com/evoken-font-f40854
-    * - Created by: Pixel Kitchen
-    * - License: Public Domain
+    * Link: https://www.fontspace.com/evoken-font-f40854
+    * Created by: Pixel Kitchen
+    * License: Public Domain
 
 - **GavelkSerif-Regular**:
-    * - Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
-    * - Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
-    * - License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+    * Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+    * Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
+    * License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 - **OldGavelkSerif**:
-    * - Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
-    * - Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
-    * - License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+    * Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+    * Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
+    * License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 - **Divinish**:
-    * - Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
-    * - Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
-    * - License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+    * Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+    * Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
+    * License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 - **Grasstext**:
-    * - Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
-    * - Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
-    * - License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+    * Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+    * Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
+    * License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 - **Reptilian**:
-    * - Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
-    * - Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
-    * - License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+    * Link: https://ichijosoya.wixsite.com/soyaworkshop/fantasy-font
+    * Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
+    * License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 - **Kushudian-Serif**:
-    * - Link: https://ichijosoya.wixsite.com/soyaworkshop/kushudian
-    * - Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
-    * - License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+    * Link: https://ichijosoya.wixsite.com/soyaworkshop/kushudian
+    * Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
+    * License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 - **thaumatology-round**:
-    * - Link: https://ichijosoya.wixsite.com/soyaworkshop/thaumatology
-    * - Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
-    * - License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+    * Link: https://ichijosoya.wixsite.com/soyaworkshop/thaumatology
+    * Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
+    * License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 - **UltraCode**:
-    * - Link: https://ichijosoya.wixsite.com/soyaworkshop/ultracode
-    * - Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
-    * - License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+    * Link: https://ichijosoya.wixsite.com/soyaworkshop/ultracode
+    * Created by: [Copyright (c) 2020,  “一条創弥 / SOYA_one”](https://twitter.com/SOYA_1st)
+    * License: [This Font Software is licensed under the SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 - **RlyehRunesV1**:
-    * - Link: http://propnomicon.blogspot.com/2014/03/rlyeh-runes-version-1.html
-    * - Created by: Propnomicon
-    * - License: [Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License.](https://creativecommons.org/licenses/by-nc-sa/3.0/)
+    * Link: http://propnomicon.blogspot.com/2014/03/rlyeh-runes-version-1.html
+    * Created by: Propnomicon
+    * License: [Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License.](https://creativecommons.org/licenses/by-nc-sa/3.0/)
 
 
 
