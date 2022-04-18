@@ -17,7 +17,11 @@ Simultaneously translate from one language to two different languages, and the d
 - The DeepL and Microsoft Translator APIs can be used for free or charged for. Small world recommends using the free version of the APIs. If you choose to use the paid version of the APIs, this mod will still work, but you are responsible for managing your usage limits and usage status.
 - This mod is a beta version and many bugs may remain. If you see a bug, we would appreciate it if you could help us out.
 
+## Installation Instructions
+To install and use the Small world mod for Foundry Virtual Tabletop, simply paste the following URL into the 
+**Install Module** dialog on the Setup menu of the application.
 
+https://github.com/AdmiralNyar/small-world/raw/master/module.json
 
 ## Function
 If this mod is enabled, a button and select box will appear between the chat log and the input field (if activated without problems).   This section describes the chat input fields and the buttons and boxes that appear.
