@@ -6,8 +6,8 @@ Two APIs can be used for each user, or other users can delegate translations to 
 Simultaneously translate from one language to two different languages, and the display of the translation results can be configured for each user.
  (e.g., you: as is, game master: as is, user 2: first foreign language, user 3: second foreign language, etc.)
 
-
-
+  
+  
 ## Note
 - **Please note that I do not take any responsibility or liability for any damage or loss caused through my mod.**
 - It may interfere with other mods that use the chat field, so use caution when doing so.
@@ -16,9 +16,15 @@ Simultaneously translate from one language to two different languages, and the d
 - Some rights to the text of the resulting translation may reside with the respective translation API. When using the translation results beyond the scope of personal use, please check the rights notice of each API and use the translation results in compliance with that notice.
 - The DeepL and Microsoft Translator APIs can be used for free or charged for. Small world recommends using the free version of the APIs. If you choose to use the paid version of the APIs, this mod will still work, but you are responsible for managing your usage limits and usage status.
 - This mod is a beta version and many bugs may remain. If you see a bug, we would appreciate it if you could help us out.
+  
+  
+## Installation Instructions
+To install and use the Small world mod for Foundry Virtual Tabletop, simply paste the following URL into the 
+**Install Module** dialog on the Setup menu of the application.
 
+https://github.com/AdmiralNyar/small-world/raw/master/module.json
 
-
+  
 ## Function
 If this mod is enabled, a button and select box will appear between the chat log and the input field (if activated without problems).   This section describes the chat input fields and the buttons and boxes that appear.
 
@@ -30,7 +36,7 @@ If this mod is enabled, a button and select box will appear between the chat log
 
 - **Target language**(Select box): The options switch according to the status of the leftmost button. The default choice when that button is toggled is "Target language". In the "Target language" state, no translation is possible and an error popup will be displayed.
 
-
+  
 
 ## Module Settings
 - **Deepl api authentication key**: The authentication key is located within your account settings at DeepL. If you suspect it has been lost or misused, delete and recreate it from within your account settings at DeepL. When saving your game settings, it will test the connection, so if you get an error, try re-entering the key.
