@@ -25,5 +25,6 @@
     "socket": true,
     "url" : "https://github.com/AdmiralNyar/small-world",
     "manifest" : "https://github.com/AdmiralNyar/small-world/raw/master/module.json",
-    "download" : "https://github.com/AdmiralNyar/small-world/archive/v0.1.1.zip"
+    "download" : "https://github.com/AdmiralNyar/small-world/archive/v0.1.1.zip",
+    "license" : "LICENSE"
 }
