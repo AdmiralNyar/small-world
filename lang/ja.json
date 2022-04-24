@@ -30,12 +30,19 @@
     "SMALLW.ErrorDeeplSingleLimit" : "DeepL APIの1回の送信内容の制限に達しています!（大量の文章は複数のチャットに分けてください）",
     "SMALLW.ErrorTechnicalProblem" : "何らかの技術的な問題により、APIサーバーからエラー内容が送られてきました!",
     "SMALLW.SecondLanguageDefault" : "2つ目の翻訳言語が”選択してください”のままです!",
+    "SMALLW.AwaitSend" : "1つ前の翻訳が終わっていません",
+    "SMALLW.AwaitSendContent" : "以下の3つの選択肢から1つを選んでください",
+    "SMALLW.AwaitSendSelect" : "・強制的に翻訳：1つ前の翻訳が終わるのを待たずに翻訳をリクエストします<br>・確認して実行：1つ前の翻訳が終わっていれば翻訳を実行します<br>・取りやめる：テキストの翻訳リクエストをキャンセルします。文章は残りません",
+    "SMALLW.AwaitSelect" : "・原文：翻訳していない内容をそのままチャットに表示します<br>・確認して実行：1つ前の翻訳が終わっていれば翻訳を実行します<br>・取りやめる：テキストの翻訳リクエストをキャンセルします。文章は残りません",
 
     "SMALLW.PleaseChoice" : "選択してください",
     "SMALLW.TargetLanguage" : "翻訳先の言語",
     "SMALLW.UserTargetLangSelect" : "ユーザーごとのチャット送信内容の表示言語を選択してください",
     "SMALLW.Yes" : "はい",
     "SMALLW.No" : "いいえ",
+    "SMALLW.Force" : "強制的に翻訳",
+    "SMALLW.CheckExecute" : "確認して実行",
+    "SMALLW.Withdraw" : "取りやめる",
     "SMALLW.Save" : "設定を保存する",
     "SMALLW.Default" : "デフォルトにリセットする",
     "SMALLW.WithoutChange" : "そのまま",
@@ -46,6 +53,7 @@
     "SMALLW.MicrosoftTranslator" : "Microsoft Translator (API)",
     "SMALLW.SwitchTrans" : "翻訳のオン/オフボタン",
     "SMALLW.SettingForUsers" : "ユーザーごとの表示言語設定",
+    "SMALLW.OriginalText" : "原文",
 
     "SMALLW.Complete" : "依頼した翻訳が{user}により完了しました!"
 }

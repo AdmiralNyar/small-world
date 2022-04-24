@@ -39,6 +39,13 @@ Hooks.once("init", async function(){
         default: false,
         type:Boolean
     });
+    game.settings.register("small-world", "canTranslateList",{
+        name: "List of Contractors for Translation",
+        scope: "world",
+        config: false,
+        default: [],
+        type:Object
+    });
     game.settings.register("small-world", "selectedLang",{
         name: "Selected language",
         scope: "client",
@@ -116,6 +123,7 @@ Hooks.once("init", async function(){
         default: false,
         type: Boolean
     });
+
     game.settings.register("small-world", "deepllimit", {
         name: "SMALLW.DeeplLimit",
         hint: "SMALLW.DeeplLimitHint",
@@ -223,7 +231,9 @@ Hooks.once("init", async function(){
     let langlist = await game.settings.get("small-world", "translateTable");
     let gmtrans = await game.settings.get("small-world", "gmTranslate");
     let worltable = await game.settings.get("small-world", "worldtranslateTable");
-    if((gmtrans && worltable.microsoft && worltable.deepl)) langlist = worltable;
+    let translatorlist = await game.settings.get("small-world", "canTranslateList");
+    let translator = translatorlist.find(i => (i.deepl) && (i.microsoft) && (game.users.get(i.gmid).active));
+    if((gmtrans && !!translator)) langlist = worltable;
     let choices = {};
     choices[`default`] = game.i18n.localize("SMALLW.PleaseChoice");
     if(langlist.deepl){
@@ -232,7 +242,7 @@ Hooks.once("init", async function(){
         }
     }
     let msStatus = await game.settings.get("small-world", "MsConnectionStatus");
-    if(msStatus || (gmtrans && worltable.microsoft)){
+    if(msStatus || (gmtrans && !!translator)){
         for(let [key, value] of Object.entries(langlist.microsoft?.translation)){
             choices[`${key}`] = value.name + "(MS)"
         }
@@ -259,13 +269,6 @@ Hooks.once("init", async function(){
         onChange: () => foundry.utils.debounce(window.location.reload(), 100),
         type:Boolean
     });
-    await game.settings.register("small-world", "canTranslateList",{
-        name: "List of Contractors for Translation",
-        scope: "world",
-        config: false,
-        default: [],
-        type:Object
-    });
 
     let set = await game.settings.get("small-world", "second-language")
     if(!choices[set]) await game.settings.set("small-world", "second-language", "default")
@@ -290,6 +293,9 @@ Hooks.once("init", async function(){
         if(!bilingal) send.forEach(k => {if(k.type == 2) k.type = 1});
         await game.user.setFlag('small-world', "select-users", send);
     }
+
+    game.user.setFlag("small-world", "translatable", true);
+
     /**
      *  i = 10 , k = 11 or (i = "pass", k = "pasta")
      *  {{#uniqueif i "===" k}}
@@ -363,17 +369,17 @@ Hooks.on("renderChatMessage",  (message,html,data) => {
 })
 
 Hooks.once("ready", async function(){
-    await getTranslatablelist(true, true);
+    await getTranslatablelist(true, true, true);
     const userlang = await game.settings.get("core", "language");
     const langlist = await game.settings.get("small-world", "translateTable");
     let serch = langlist.deepl?.find((u) => u.language.toLowerCase() == userlang.toLowerCase());
 
-    if(!serch) serch = langlist.microsoft.translation[`${userlang.toLowerCase()}`]
+    if(!serch) serch = langlist.microsoft?.translation[`${userlang.toLowerCase()}`]
 
     if(!!serch) {await game.settings.set("small-world", "userLanguage", userlang)}else{
         await game.settings.set("small-world", "userLanguage", "")
     }
-    await getTranslatablelist(true, true, true);
+    await getTranslatablelist(true, true);
 
     const chatControls = this.document.getElementById("chat-controls");
     let translateButtons = chatControls.getElementsByClassName("translate-buttons")[0];
@@ -532,12 +538,18 @@ Hooks.once("ready", async function(){
         const sendUserId = packet.sendUserId;
         if(receiveUserId == game.user.id){
             if(type == "request"){
-                let result = await createTranslation({...data, option:true});
-                if(result){
-                    let sendData = {data:null, type:"complete", sendUserId:game.user.id, receiveUserId: sendUserId}
-                    game.socket.emit('module.small-world', sendData)
+                let status = await game.user.getFlag("small-world", "translatable");
+                if(status){
+                    let result = await createTranslation({...data, option:true});
+                    if(result){
+                        let sendData = {data:null, type:"complete", sendUserId:game.user.id, receiveUserId: sendUserId}
+                        game.socket.emit('module.small-world', sendData)
+                    }else{
+                        let sendData = {data:data, type:"fail", sendUserId:game.user.id, receiveUserId: sendUserId}
+                        game.socket.emit('module.small-world', sendData)
+                    }
                 }else{
-                    let sendData = {data:data, type:"fail", sendUserId:game.user.id, receiveUserId: sendUserId}
+                    let sendData = {data:data, type:"await", sendUserId:game.user.id, receiveUserId: sendUserId}
                     game.socket.emit('module.small-world', sendData)
                 }
             }
@@ -546,8 +558,14 @@ Hooks.once("ready", async function(){
             }
             if(type == "fail"){
                 let title =  game.i18n.localize("SMALLW.CantBeTrans");
-                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${data.copy.content}</p>`;
+                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${data.copy.content}</textarea>`;
                 await failpop(result = game.i18n.localize("SMALLW.ErrorTechnicalProblem"), chatData = data.copy, title, content);
+            }
+            if(type == "await"){
+                let title = game.i18n.localize("SMALLW.AwaitSend");
+                let content = `<p>${game.i18n.localize("SMALLW.AwaitSendContent")}<br>${game.i18n.localize("SMALLW.AwaitSelect")}</p><br><br>${game.i18n.localize("SMALLW.OriginalText")}:<br><textarea readonly>${data.copy.content}</textarea>`;
+                let sendData = {data:data, type:"request", sendUserId:game.user.id, receiveUserId: sendUserId}
+                awaitpop(packet = sendData, title, content);
             }
         }
     });
@@ -593,7 +611,6 @@ async function getTranslatablelist(deepl, ms, option){
                     await game.settings.set("small-world", "translateTable", gmtable);
                 }else{
                     console.error(data);
-                    ui.notifications.error(game.i18n.localize("SMALLW.ErrorDeeplApiKey"))
                     console.error(game.i18n.localize("SMALLW.ErrorDeeplApiKey"))
                     let list = await game.settings.get("small-world", "translateTable");
                     list.deepl = null;
@@ -606,7 +623,8 @@ async function getTranslatablelist(deepl, ms, option){
     if(ms){
         const MSAPI_URL = "https://api.cognitive.microsofttranslator.com/languages?api-version=3.0" + "&scope=translation";
         let userLanguage = await game.settings.get("small-world", "userLanguage");
-        if(!userLanguage) userLanguage = "EN"
+        let detect = await game.settings.get("small-world", "dontDetectLang");
+        if(!userLanguage || detect) userLanguage = "EN"
 
         try{
             await $.ajax({
@@ -656,11 +674,12 @@ async function getTranslatablelist(deepl, ms, option){
             })
             .fail(async function(data){
                 console.error(data);
-                ui.notifications.error(game.i18n.localize("SMALLW.ErrorMicrosoftApiKey"))
                 console.error(game.i18n.localize("SMALLW.ErrorMicrosoftApiKey"))
                 let list = await game.settings.get("small-world", "translateTable");
-                list.microsoft = null;
-                await game.settings.set("small-world", "translateTable", list);
+                if(!gmtrans || !gmtable.microsoft)  {
+                    list.microsoft = null;
+                    await game.settings.set("small-world", "translateTable", list);
+                }
                 await game.settings.set("small-world", "MsConnectionStatus", false);
             })
         }catch{}
@@ -677,10 +696,20 @@ async function getTranslatablelist(deepl, ms, option){
                 if(list[index].microsoft != msresult) list[index].microsoft = msresult;
             }
             await game.settings.set("small-world", "canTranslateList", list);
+            let worldlist = await game.settings.get("small-world", "worldtranslateTable");
             if(dlresult && msresult){
-                let worldlist = await game.settings.get("small-world", "worldtranslateTable");
                 worldlist =  await game.settings.get("small-world", "translateTable");
                 game.settings.set("small-world", "worldtranslateTable", worldlist)
+            }
+            let dltranslator = list.find(i => i.deepl  && game.users.get(i.gmid).active);
+            let mstranslator = list.find(i => i.microsoft  && game.users.get(i.gmid).active);
+            if(!dltranslator) {
+                worldlist.deepl = null;
+                await game.settings.set("small-world", "worldtranslateTable", worldlist);
+            }
+            if(!mstranslator) {
+                worldlist.microsoft = null;
+                await game.settings.set("small-world", "worldtranslateTable", worldlist)
             }
         }
     }
@@ -688,14 +717,15 @@ async function getTranslatablelist(deepl, ms, option){
 
 async function translateType(event){
     event.preventDefault();
+    let translatorlist = await game.settings.get("small-world", "canTranslateList");
+    let translator = translatorlist.find(i => (i.deepl) && (i.microsoft) && (game.users.get(i.gmid).active));
     let transType = await game.settings.get("small-world", "translateType");
     let list = await game.settings.get("small-world", "translateTable");
     let msStatus = await game.settings.get("small-world", "MsConnectionStatus");
     let gmtrans = await game.settings.get("small-world", "gmTranslate");
-    let worltable = await game.settings.get("small-world", "worldtranslateTable");
-    if((!msStatus && (!gmtrans || !worltable.microsoft)) && (transType == 1)) transType = 2;
+    if((!msStatus && (!gmtrans || !translator)) && (transType == 1)) transType = 2;
     if((list.deepl == null) && (transType == 0))transType = 1;
-    if((list.deepl == null) && (!msStatus && (!gmtrans || !worltable.microsoft)) & (transType != 2))transType = 2;
+    if((list.deepl == null) && (!msStatus && (!gmtrans || !translator)) && (transType != 2))transType = 2;
     $(event.currentTarget).css({
         "display": "none"
     });
@@ -776,7 +806,7 @@ async function getOption(type, origin, select){
     }else if(type == 2){
         let list = await game.settings.get("small-world", "translateTable");
 
-        for(let [key, value] of Object.entries(list.microsoft.translation)){
+        for(let [key, value] of Object.entries(list.microsoft?.translation)){
             var option = document.createElement("option");
             option.value = key;
             var text = document.createTextNode(value.name + "(MS)");
@@ -1005,7 +1035,7 @@ Hooks.on("chatMessage", async (chatLog, message, chatData) =>{
                 ui.notifications.error(game.i18n.localize("SMALLW.ErrorTargetLangNone"));
                 const dlg = new Dialog({
                     title: game.i18n.localize("SMALLW.ErrorTargetLangNone"),
-                    content: `<p>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${chatData.content}</p>`,
+                    content: `<p>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${chatData.content}</textarea>`,
                     buttons:{
                         yes:{
                             label: game.i18n.localize("SMALLW.Yes"),
@@ -1050,11 +1080,12 @@ Hooks.on("chatMessage", async (chatLog, message, chatData) =>{
                 let secondL = await game.settings.get("small-world", "second-language");
                 let userLanguage = await game.settings.get("small-world", "userLanguage");
                 let detect = await game.settings.get("small-world", "dontDetectLang");
+                let status = game.user.getFlag("small-world", "translatable");
 
                 const data = {transType, transLang, chatData, copy, tag, targetlist, text, senddata, count, usersetting, bilingual, secondL, userLanguage, detect}
 
                 let gmsetting = await game.settings.get("small-world", "gmTranslate");
-                let gmlist = await game.settings.get("small-world", "canTranslateList")
+                let gmlist = await game.settings.get("small-world", "canTranslateList");
                 let check1, check2, check3 = false;
                 let secondType;
                 if(secondL != "default"){
@@ -1086,41 +1117,75 @@ Hooks.on("chatMessage", async (chatLog, message, chatData) =>{
                         dlself = !!dlself;
                         if(check1 === true) {
                             if(game.user.id == check2){
-                                await createTranslation({...data})
+                                if(status){
+                                    createTranslation({...data});
+                                }else{
+                                    awaitself(data, copy);
+                                }
                             }else{
                                 if(dlself && msself){
-                                    await createTranslation({...data})
+                                    if(status){
+                                        createTranslation({...data});
+                                    }else{
+                                        awaitself(data, copy);
+                                    }
                                 }else{
                                     let packet = {data:data, type:"request", receiveUserId: check2, sendUserId:game.user.id}
-                                    game.socket.emit('module.small-world', packet)
+                                    game.socket.emit('module.small-world', packet);
                                 }
                             }
                         }else if(check2 === true) {
                             if(game.user.id == check1){
-                                await createTranslation({...data})
+                                if(status){
+                                    createTranslation({...data});
+                                }else{
+                                    awaitself(data, copy);
+                                }
                             }else{
                                 if(dlself && msself){
-                                    await createTranslation({...data})
+                                    if(status){
+                                        createTranslation({...data});
+                                    }else{
+                                        awaitself(data, copy);
+                                    }
                                 }else{
                                     let packet = {data:data, type:"request", receiveUserId: check1, sendUserId:game.user.id}
-                                    game.socket.emit('module.small-world', packet)
+                                    game.socket.emit('module.small-world', packet);
                                 }
                             }
                         }else{
                             if(game.user.id == check1){
-                                await createTranslation({...data})
+                                if(status){
+                                    createTranslation({...data});
+                                }else{
+                                    awaitself(data, copy);
+                                }
                             }else{
                                 if(dlself && msself){
-                                    await createTranslation({...data})
+                                    if(status){
+                                        createTranslation({...data});
+                                    }else{
+                                        awaitself(data, copy);
+                                    }
                                 }else{
                                     let packet = {data:data, type:"request", receiveUserId: check2, sendUserId:game.user.id}
-                                    game.socket.emit('module.small-world', packet)
+                                    game.socket.emit('module.small-world', packet);
                                 }
                             }
                         }
+                    }else{
+                        if(status){
+                            createTranslation({...data});
+                        }else{
+                            awaitself(data, copy);
+                        }
                     }
                 }else{
-                    await createTranslation({...data})
+                    if(status){
+                        createTranslation({...data});
+                    }else{
+                        awaitself(data, copy);
+                    }
                 }
             }
         }else{
@@ -1130,6 +1195,7 @@ Hooks.on("chatMessage", async (chatLog, message, chatData) =>{
 });
 
 async function createTranslation({transType, transLang, chatData, copy, tag, targetlist, text, senddata, count, usersetting, bilingual, secondL, userLanguage, detect, option = false}){
+    game.user.setFlag("small-world", "translatable", false);
     let bytes = text.join().bytes();
     if(transType == 0){
         let back = await new Promise( async resolve => {
@@ -1180,7 +1246,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                             }else{
                                 const dlg = new Dialog({
                                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                    content: `<p>${game.i18n.localize("SMALLW.MsLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                    content: `<p>${game.i18n.localize("SMALLW.MsLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                     buttons:{
                                         yes:{
                                             label:game.i18n.localize("SMALLW.Yes"),
@@ -1206,7 +1272,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                             }else{
                                 const dlg = new Dialog({
                                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                    content: `<p>${game.i18n.localize("SMALLW.MsSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                    content: `<p>${game.i18n.localize("SMALLW.MsSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                     buttons:{
                                         yes:{
                                             label:game.i18n.localize("SMALLW.Yes"),
@@ -1252,14 +1318,15 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                 console.log(`Translated:${copy.content} => ${reptrans}`)
                                 chatData.content += `<div class="small-world-display-second small-world" style="display:none">` + reptrans + `</div>`;
                                 game.settings.set("small-world", "translateMsCount", {count:charC.count + count,limit: limit});
+                                console.log(`Your translated text at Microsoft Translator is ${charC.count + count}/${limit} characters.`)
                             })
                             .fail(async function(result){
                                     if(option){
                                         return resolve(false)
                                     }else{
                                         let title =  game.i18n.localize("SMALLW.CantBeTrans");
-                                        let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`;
-                                        await failpop(result, copy, title, content);
+                                        let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`;
+                                        await failpop(result, chatData =  copy, title, content);
                                     }
                                 }
                             )
@@ -1274,7 +1341,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                             }else{
                                 const dlg = new Dialog({
                                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                     buttons:{
                                         yes:{
                                             label:game.i18n.localize("SMALLW.Yes"),
@@ -1300,7 +1367,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                             }else{
                                 const dlg = new Dialog({
                                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                     buttons:{
                                         yes:{
                                             label:game.i18n.localize("SMALLW.Yes"),
@@ -1347,14 +1414,16 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                 chatData.content += `<div class="small-world-display-second small-world" style="display:none">` + reptrans + `</div>`;
                                 ChatMessage.create(copy);
                                 await getDeeplCount();
+                                let dlc = await game.settings.get("small-world", "translateDeeplCount");
+                                console.log(`Your translated text at DeepL is ${dlc.count}/${limit} characters.`);
                             })
                             .fail(async function(result){
                                     if(option){
                                         return resolve(false)
                                     }else{
                                         let title =  game.i18n.localize("SMALLW.CantBeTrans");
-                                        let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`;
-                                        await failpop(result, copy, title, content);
+                                        let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`;
+                                        await failpop(result, chatData =  copy, title, content);
                                     }
                                 }
                             )
@@ -1364,10 +1433,10 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                     if(option){
                         return resolve(false)
                     }else{
-                        chatData = null
+                        chatData = null;
                         const dlg = new Dialog({
                             title: game.i18n.localize("SMALLW.CantBeTrans"),
-                            content: `<p>${game.i18n.localize("SMALLW.SecondLanguageDefault")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                            content: `<p>${game.i18n.localize("SMALLW.SecondLanguageDefault")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                             buttons:{
                                 yes:{
                                     label:game.i18n.localize("SMALLW.Yes"),
@@ -1392,24 +1461,26 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
             await ChatMessage.create(chatData);
             return resolve(true)
         })
+        game.user.setFlag("small-world", "translatable", true);
         return back
     }else if(transType == 1){
         //First language = deepl
         var charC = await game.settings.get("small-world", "translateDeeplCount");
         let limit = await game.settings.get("small-world", "deepllimit");
         if(charC.count > limit){
+            game.user.setFlag("small-world", "translatable", true);
             if(option){
                 return false
             }else{
                 const dlg = new Dialog({
                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${chatData.content}</p>`,
+                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                     buttons:{
                         yes:{
                             label:game.i18n.localize("SMALLW.Yes"),
                             icon: `<i class="fas fa-check"></i>`,
                             callback: () => {
-                                ChatMessage.create(chatData);
+                                ChatMessage.create(copy);
                             }
                         },
                         no:{
@@ -1424,12 +1495,13 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                 dlg.render(true);
             }
         }else if(bytes > 128000 || text.length > 50){
+            game.user.setFlag("small-world", "translatable", true);
             if(option){
-                return resolve(false)
+                return false
             }else{
                 const dlg = new Dialog({
                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                     buttons:{
                         yes:{
                             label:game.i18n.localize("SMALLW.Yes"),
@@ -1479,6 +1551,8 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                     chatData.content = `<div class="small-world-display-default small-world" style="display:none">` + copy.content + `</div>`;
                     chatData.content +=  `<div class="small-world-display-first small-world" style="display:none">` + reptrans + `</div>`;
                     await getDeeplCount();
+                    let dlc = await game.settings.get("small-world", "translateDeeplCount");
+                    console.log(`Your translated text at DeepL is ${dlc.count}/${limit} characters.`);
 
                     if(bilingual){
                         if(secondL != "default"){
@@ -1508,7 +1582,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                     }else{
                                         const dlg = new Dialog({
                                             title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                            content: `<p>${game.i18n.localize("SMALLW.MsLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                            content: `<p>${game.i18n.localize("SMALLW.MsLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                             buttons:{
                                                 yes:{
                                                     label:game.i18n.localize("SMALLW.Yes"),
@@ -1534,7 +1608,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                     }else{
                                         const dlg = new Dialog({
                                             title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                            content: `<p>${game.i18n.localize("SMALLW.MsSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                            content: `<p>${game.i18n.localize("SMALLW.MsSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                             buttons:{
                                                 yes:{
                                                     label:game.i18n.localize("SMALLW.Yes"),
@@ -1579,27 +1653,28 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                         console.log(`Translated:${copy.content} => ${reptrans}`)
                                         chatData.content +=  `<div class="small-world-display-second small-world" style="display:none">` + reptrans + `</div>`;
                                         game.settings.set("small-world", "translateMsCount", {count:charC2.count + count,limit: limit2});
+                                        console.log(`Your translated text at Microsoft Translator is ${charC2.count + count}/${limit2} characters.`)
                                     })
                                     .fail(async function(result){
                                             if(option){
                                                 return resolve(false)
                                             }else{
                                                 let title =  game.i18n.localize("SMALLW.CantBeTrans");
-                                                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`;
-                                                await failpop(result, copy, title, content);
+                                                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`;
+                                                await failpop(result, chatData =  copy, title, content);
                                             }
                                         }
                                     )
                                 }
                             }else{
                                 //First language = deepl, second language = deepl
-                                if(charC.count + count > limit){
+                                if(charC.count + count + count > limit){
                                     if(option){
                                         return resolve(false)
                                     }else{
                                         const dlg = new Dialog({
                                             title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                            content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                            content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                             buttons:{
                                                 yes:{
                                                     label:game.i18n.localize("SMALLW.Yes"),
@@ -1625,7 +1700,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                     }else{
                                         const dlg = new Dialog({
                                             title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                            content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                            content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                             buttons:{
                                                 yes:{
                                                     label:game.i18n.localize("SMALLW.Yes"),
@@ -1670,14 +1745,16 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                         console.log(`Translated:${copy.content} => ${reptrans}`)
                                         chatData.content +=  `<div class="small-world-display-second small-world" style="display:none">` + reptrans + `</div>`;
                                         await getDeeplCount();
+                                        let dlc = await game.settings.get("small-world", "translateDeeplCount");
+                                        console.log(`Your translated text at DeepL is ${dlc.count}/${limit} characters.`);
                                     })
                                     .fail(async function(result){
                                             if(option){
                                                 return resolve(false)
                                             }else{
                                                 let title =  game.i18n.localize("SMALLW.CantBeTrans");
-                                                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`;
-                                                await failpop(result, copy, title, content);
+                                                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`;
+                                                await failpop(result, chatData = copy, title, content);
                                             }
                                         }
                                     )
@@ -1690,7 +1767,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                 chatData = null
                                 const dlg = new Dialog({
                                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                    content: `<p>${game.i18n.localize("SMALLW.SecondLanguageDefault")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                    content: `<p>${game.i18n.localize("SMALLW.SecondLanguageDefault")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                     buttons:{
                                         yes:{
                                             label:game.i18n.localize("SMALLW.Yes"),
@@ -1720,12 +1797,13 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                             return resolve(false)
                         }else{
                             let title =  game.i18n.localize("SMALLW.CantBeTrans");
-                            let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${chatData.content}</p>`;
-                            await failpop(result, chatData, title, content);
+                            let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`;
+                            await failpop(result, chatData = copy, title, content);
                         }
                     }
                 )
             })();})
+            game.user.setFlag("small-world", "translatable", true);
             return back
         }
     }else if(transType == 2){
@@ -1733,18 +1811,19 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
         var charC = await game.settings.get("small-world", "translateMsCount");
         let limit = await game.settings.get("small-world", "mslimit");
         if(charC.count > limit){
+            game.user.setFlag("small-world", "translatable", true);
             if(option){
                 return false
             }else{
                 const dlg = new Dialog({
                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                    content: `<p>${game.i18n.localize("SMALLW.MsLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${chatData.content}</p>`,
+                    content: `<p>${game.i18n.localize("SMALLW.MsLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                     buttons:{
                         yes:{
                             label:game.i18n.localize("SMALLW.Yes"),
                             icon: `<i class="fas fa-check"></i>`,
                             callback: () => {
-                                ChatMessage.create(chatData);
+                                ChatMessage.create(copy);
                             }
                         },
                         no:{
@@ -1759,12 +1838,13 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                 dlg.render(true);
             }
         }else if((count > 10000) || (text.length > 999)){
+            game.user.setFlag("small-world", "translatable", true);
             if(option){
-                return resolve(false)
+                return false
             }else{
                 const dlg = new Dialog({
                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                    content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                     buttons:{
                         yes:{
                             label:game.i18n.localize("SMALLW.Yes"),
@@ -1815,6 +1895,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                     chatData.content = `<div class="small-world-display-default small-world" style="display:none">` + copy.content + `</div>`;
                     chatData.content +=  `<div class="small-world-display-first small-world" style="display:none">` + reptrans + `</div>`;
                     game.settings.set("small-world", "translateMsCount", {count:charC.count + count,limit: limit});
+                    console.log(`Your translated text at Microsoft Translator is ${charC.count + count}/${limit} characters.`)
 
                     //if bilingal setting = true
                     if(bilingual){
@@ -1843,13 +1924,13 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                     }else{
                                         const dlg = new Dialog({
                                             title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                            content: `<p>${game.i18n.localize("SMALLW.MsLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${chatData.content}</p>`,
+                                            content: `<p>${game.i18n.localize("SMALLW.MsLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                             buttons:{
                                                 yes:{
                                                     label:game.i18n.localize("SMALLW.Yes"),
                                                     icon: `<i class="fas fa-check"></i>`,
                                                     callback: () => {
-                                                        ChatMessage.create(chatData);
+                                                        ChatMessage.create(copy);
                                                     }
                                                 },
                                                 no:{
@@ -1869,7 +1950,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                     }else{
                                         const dlg = new Dialog({
                                             title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                            content: `<p>${game.i18n.localize("SMALLW.MsSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                            content: `<p>${game.i18n.localize("SMALLW.MsSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                             buttons:{
                                                 yes:{
                                                     label:game.i18n.localize("SMALLW.Yes"),
@@ -1911,14 +1992,15 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                         console.log(`Translated:${copy.content} => ${reptrans}`)
                                         chatData.content +=  `<div class="small-world-display-second small-world" style="display:none">` + reptrans + `</div>`;
                                         game.settings.set("small-world", "translateMsCount", {count:charC.count + count + count,limit: limit});
+                                        console.log(`Your translated text at Microsoft Translator is ${charC.count + count + count}/${limit} characters.`)
                                     })
                                     .fail(async function(result){
                                             if(option){
                                                 return resolve(false)
                                             }else{
                                                 let title =  game.i18n.localize("SMALLW.CantBeTrans");
-                                                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${chatData.content}</p>`;
-                                                await failpop(result, chatData, title, content);
+                                                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`;
+                                                await failpop(result, chatData = copy, title, content);
                                             }
                                         }
                                     )
@@ -1933,13 +2015,13 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                     }else{
                                         const dlg = new Dialog({
                                             title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                            content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${chatData.content}</p>`,
+                                            content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                             buttons:{
                                                 yes:{
                                                     label:game.i18n.localize("SMALLW.Yes"),
                                                     icon: `<i class="fas fa-check"></i>`,
                                                     callback: () => {
-                                                        ChatMessage.create(chatData);
+                                                        ChatMessage.create(copy);
                                                     }
                                                 },
                                                 no:{
@@ -1959,7 +2041,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                     }else{
                                         const dlg = new Dialog({
                                             title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                            content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                            content: `<p>${game.i18n.localize("SMALLW.ErrorDeeplSingleLimit")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                             buttons:{
                                                 yes:{
                                                     label:game.i18n.localize("SMALLW.Yes"),
@@ -2004,13 +2086,15 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                         console.log(`Translated:${copy.content} => ${reptrans}`)
                                         chatData.content +=  `<div class="small-world-display-second small-world" style="display:none">` + reptrans + `</div>`;
                                         await getDeeplCount();
+                                        let dlc = await game.settings.get("small-world", "translateDeeplCount");
+                                        console.log(`Your translated text at DeepL is ${dlc.count}/${limit2} characters.`);
                                     })
                                     .fail(async function(result){
                                             if(option){
                                                 return resolve(false)
                                             }else{
                                                 let title =  game.i18n.localize("SMALLW.CantBeTrans");
-                                                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`;
+                                                let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`;
                                                 await failpop(result, copy, title, content);
                                             }
                                         }
@@ -2024,7 +2108,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                 chatData = null
                                 const dlg = new Dialog({
                                     title: game.i18n.localize("SMALLW.CantBeTrans"),
-                                    content: `<p>${game.i18n.localize("SMALLW.SecondLanguageDefault")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${copy.content}</p>`,
+                                    content: `<p>${game.i18n.localize("SMALLW.SecondLanguageDefault")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`,
                                     buttons:{
                                         yes:{
                                             label:game.i18n.localize("SMALLW.Yes"),
@@ -2054,12 +2138,13 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                             return resolve(false)
                         }else{
                             let title =  game.i18n.localize("SMALLW.CantBeTrans");
-                            let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><p>${chatData.content}</p>`;
-                            await failpop(result, chatData, title, content);
+                            let content = `<p>${game.i18n.localize("SMALLW.ErrorTechnicalProblem")}<br>${game.i18n.localize("SMALLW.ErrorWithoutTranslation")}</p><br><br><textarea readonly>${copy.content}</textarea>`;
+                            await failpop(result, chatData = copy, title, content);
                         }
                     }
                 )
             })()});
+            game.user.setFlag("small-world", "translatable", true);
             return back
         }
     }
@@ -2090,6 +2175,77 @@ async function failpop(result, chatData, title, content){
     });
     dlg.render(true);
 
+}
+
+async function awaitpop(packet, title, content){
+    const dlg = new Dialog({
+        title:title,
+        content: content,
+        buttons:{
+            yes:{
+                label:game.i18n.localize("SMALLW.OriginalText"),
+                icon: `<i class="fas fa-check"></i>`,
+                callback: () => {
+                    ChatMessage.create(packet.data.copy);
+                    return false;
+                }
+            },
+            check:{
+                label:game.i18n.localize("SMALLW.CheckExecute"),
+                icon: `<i class="fas fa-search"></i>`,
+                callback: async () => {
+                    game.socket.emit('module.small-world', packet);
+                }
+            },
+            no:{
+                label:game.i18n.localize("SMALLW.Withdraw"),
+                icon: `<i class="fas fa-times"></i>`,
+                callback: () => {return true}
+            }
+        },
+        default: '',
+        close:() => {return false}
+    });
+    dlg.render(true);
+}
+
+async function awaitself(data, copy){
+    const dlg = new Dialog({
+        title: game.i18n.localize("SMALLW.AwaitSend"),
+        content: `<p>${game.i18n.localize("SMALLW.AwaitSendContent")}<br>${game.i18n.localize("SMALLW.AwaitSendSelect")}</p><br><br>${game.i18n.localize("SMALLW.OriginalText")}:<br><textarea readonly>${copy.content}</textarea>`,
+        buttons:{
+            force:{
+                label:game.i18n.localize("SMALLW.Force"),
+                icon: `<i class="fas fa-bomb"></i>`,
+                callback: () => {
+                    createTranslation({...data});
+                    return true;
+                }
+            },
+            check:{
+                label:game.i18n.localize("SMALLW.CheckExecute"),
+                icon: `<i class="fas fa-search"></i>`,
+                callback: async () => {
+                    let status = await game.user.getFlag("small-world", "translatable");
+                    if(status){
+                        createTranslation({...data});
+                        return true;
+                    }else{
+                        awaitself(data, copy);
+                        return false;
+                    }
+                }
+            },
+            no:{
+                label:game.i18n.localize("SMALLW.Withdraw"),
+                icon: `<i class="fas fa-times"></i>`,
+                callback: () => {return false}
+            }
+        },
+        default: '',
+        close:() => {return false}
+    });
+    dlg.render(true);
 }
 
 async function getDeepltranslate(text, API_KEY, API_URL, userLanguage, transLang){

@@ -30,12 +30,19 @@
     "SMALLW.ErrorDeeplSingleLimit" : "Deepl Translator's character limit for a single transmission has been reached! (Please do not send large numbers of texts)",
     "SMALLW.ErrorTechnicalProblem" : "Due to some technical problem, communication with the api was not successful!",
     "SMALLW.SecondLanguageDefault" : "Second language is \"Please select\"!",
+    "SMALLW.AwaitSend" : "One previous translation has not been completed",
+    "SMALLW.AwaitSendContent" : "Please choose one of the following three options",
+    "SMALLW.AwaitSendSelect" : "・Force:Requests translation without waiting for the previous translation to finish<br>・Check and Execute:Execute the translation if the previous translation has been completed<br>・Withdraw:Cancels the translation request for the text. No text will remain",
+    "SMALLW.AwaitSelect" : "・Original:The original text is displayed in the chat without translation<br>・Check and Execute:Execute the translation if the previous translation has been completed<br>・Withdraw:Cancels the translation request for the text. No text will remain",
 
     "SMALLW.PleaseChoice" : "Please select",
     "SMALLW.TargetLanguage" : "Target language",
     "SMALLW.UserTargetLangSelect" : "Select the display language for each user",
     "SMALLW.Yes" : "Yes",
     "SMALLW.No" : "No",
+    "SMALLW.Force" : "Force",
+    "SMALLW.CheckExecute" : "Check and Execute",
+    "SMALLW.Withdraw" : "Withdraw",
     "SMALLW.Save" : "Save Changes",
     "SMALLW.Default" : "Reset Defaults",
     "SMALLW.WithoutChange" : "Without change",
@@ -46,6 +53,7 @@
     "SMALLW.MicrosoftTranslator" : "Microsoft Translator (API)",
     "SMALLW.SwitchTrans" : "Translation on/off",
     "SMALLW.SettingForUsers" : "Settings for each user",
+    "SMALLW.OriginalText" : "Original",
 
     "SMALLW.Complete" : "Translation completed by {user}!"
 }
