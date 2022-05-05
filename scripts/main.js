@@ -379,6 +379,8 @@ Hooks.once("ready", async function(){
     if(!!serch) {await game.settings.set("small-world", "userLanguage", userlang)}else{
         await game.settings.set("small-world", "userLanguage", "")
     }
+    if(userlang == "zh-CN" || userlang == "cn" || userlang == "CN") await game.settings.set("small-world", "userLanguage", "zh");
+
     await getTranslatablelist(true, true);
 
     const chatControls = this.document.getElementById("chat-controls");
@@ -623,6 +625,7 @@ async function getTranslatablelist(deepl, ms, option){
     if(ms){
         const MSAPI_URL = "https://api.cognitive.microsofttranslator.com/languages?api-version=3.0" + "&scope=translation";
         let userLanguage = await game.settings.get("small-world", "userLanguage");
+        if(userLanguage == "zh") userLanguage = "zh-Hans";
         let detect = await game.settings.get("small-world", "dontDetectLang");
         if(!userLanguage || detect) userLanguage = "EN"
 
@@ -1296,7 +1299,9 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                             let code2 = game.settings.get("small-world", "msunseenkey");
                             let decode2 = await Code.decode(code2);
                             const API_KEY2 = decode2;
-                            const API_URL2 = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0" + `&from=${userLanguage}&to=${secondL}`;
+                            let lang2 = userLanguage;
+                            if(lang2 == "zh") lang2 = "zh-Hans"
+                            const API_URL2 = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0" + `&from=${lang2}&to=${secondL}`;
 
                             await $.when(
                                 getMstranslate(senddata, API_KEY2, API_URL2)
@@ -1632,7 +1637,9 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                     let code2 = await game.settings.get("small-world", "msunseenkey");
                                     let decode2 = await Code.decode(code2);
                                     const API_KEY2 = decode2;
-                                    const API_URL2 = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0" + `&from=${userLanguage}&to=${secondL}`;
+                                    let lang2 = userLanguage;
+                                    if(lang2 == "zh") lang2 = "zh-Hans";
+                                    const API_URL2 = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0" + `&from=${lang2}&to=${secondL}`;
                                     await $.when(
                                         getMstranslate(senddata, API_KEY2, API_URL2)
                                     )
@@ -1870,7 +1877,9 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                 if(detect) userLanguage = ""
                 let decode = await Code.decode(code);
                 const API_KEY = decode;
-                const API_URL = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0" + `&from=${userLanguage}&to=${transLang}`;
+                let lang = userLanguage;
+                if(lang == "zh") lang = "zh-Hans";
+                const API_URL = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0" + `&from=${lang}&to=${transLang}`;
 
                 //let result;
                 $.when(
@@ -1971,7 +1980,7 @@ async function createTranslation({transType, transLang, chatData, copy, tag, tar
                                         dlg.render(true);
                                     }
                                 }else{
-                                    const API_URL2 = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0" + `&from=${userLanguage}&to=${secondL}`;
+                                    const API_URL2 = "https://api.cognitive.microsofttranslator.com/translate?api-version=3.0" + `&from=${lang}&to=${secondL}`;
                                     await $.when(
                                         getMstranslate(senddata, API_KEY, API_URL2)
                                     )

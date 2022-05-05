@@ -8,6 +8,13 @@ Simultaneously translate from one language to two different languages, and the d
 
   
   
+## News(v0.1.4～)
+In addition to the already supported English and Japanese, small-world now supports the display of French, Spanish, German, Italian, Simplified Chinese[^1], and Swedish.
+The translation was done using DeepL and may not reproduce the nuances correctly.
+If any experts in the respective languages have suggestions for corrections, please send us a pull request!
+  
+  
+  
 ## Note
 - **Please note that I do not take any responsibility or liability for any damage or loss caused through my mod.**
 - It may interfere with other mods that use the chat field, so use caution when doing so.
@@ -132,7 +139,7 @@ The fonts used in this mod are composed of the following great fonts.
     * Link: http://propnomicon.blogspot.com/2014/03/rlyeh-runes-version-1.html
     * Created by: Propnomicon
     * License: [Creative Commons Attribution-Noncommercial-Share Alike 3.0 Unported License.](https://creativecommons.org/licenses/by-nc-sa/3.0/)
-
-
-
-
+  
+  
+  
+[^1]:Unfortunately, DeepL does not support Traditional Chinese, only Simplified Chinese.
