@@ -1,5 +1,5 @@
-# Small world (β)
-Small world is a Foundry VTT (ver 9) mod that uses DeepL and the Microsoft Translator API to allow instant translation of chats.  
+# Small world
+Small world is a Foundry VTT (version 9 and 10) mod that uses DeepL and the Microsoft Translator API to allow instant translation of chats.  
 It also has the ability to randomly create notations in the language of yout imaginary worlds without communicating with the API.  
 (Note that this is done by encryption and has no grammatical rules.Use it to improve the mood of the place.)  
 Two APIs can be used for each user, or other users can delegate translations to their GM user if the user with GM permissions has registered two APIs (world setting, disabled by default).  
