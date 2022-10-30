@@ -12,12 +12,15 @@ const ORIGINAL_FONT_LIST = [
     {name: "UltraCode", key: "small-world-font-UltraCode"},
     {name: "RlyehRunes", key: "small-world-font-RlyehRunes"}
 ]
-
 String.prototype.bytes = function () {
     return(encodeURIComponent(this).replace(/%../g,"x").length);
 }
 
+var isNewVersion = isNewerVersion(game.version, "10");
+
 Hooks.once("init", async function(){
+    isNewVersion = isNewerVersion(game.version, "10");
+
     game.settings.register("small-world", "transnow",{
         name:"translate now",
         scope: "client",
@@ -281,13 +284,16 @@ Hooks.once("init", async function(){
         def.push({id:users[k].id, name:users[k].name, type:1})
     }
     send = [...def]
-    if(!game.user.data.flags["small-world"]){
+    let flags;
+    if(isNewVersion) {flags = game.user.flags} else {flags = game.user.data.flags}
+
+    if(!flags["small-world"]){
         await game.user.setFlag('small-world', "select-users", send)
     }else{
-        for(let i = 0; i < game.user.data.flags["small-world"]["select-users"].length; i++){
-            let index = send.findIndex(j => (j.id == game.user.data.flags["small-world"]["select-users"][i].id) && (j.name == game.user.data.flags["small-world"]["select-users"][i].name));
+        for(let i = 0; i < flags["small-world"]["select-users"].length; i++){
+            let index = send.findIndex(j => (j.id == flags["small-world"]["select-users"][i].id) && (j.name == flags["small-world"]["select-users"][i].name));
             if(index >= 0){
-                send[index] = {...game.user.data.flags["small-world"]["select-users"][i]}
+                send[index] = {...flags["small-world"]["select-users"][i]}
             }
         }
         if(!bilingal) send.forEach(k => {if(k.type == 2) k.type = 1});
@@ -330,6 +336,9 @@ Hooks.once("init", async function(){
 });
 
 Hooks.on("renderChatMessage",  (message,html,data) => {
+    let flags;
+    if(isNewVersion) {flags = message.flags} else {flags = message.data.flags}
+
     html.on('dblclick', 'div.small-world', cl.bind(this))
     async function cl(event){
         if(event.shiftKey){
@@ -346,19 +355,19 @@ Hooks.on("renderChatMessage",  (message,html,data) => {
         }
     }
 
-    if(message.data.flags["small-world"]?.user){
-        let index = message.data.flags["small-world"].user.findIndex(i => i.id == game.user.id)
+    if(flags["small-world"]?.user){
+        let index = flags["small-world"].user.findIndex(i => i.id == game.user.id)
         if(index >= 0){
             html.find(`div.message-content`).find(`div.small-world`).each(async function(idx, element) {
-                if(message.data.flags["small-world"].user[index].type == 0){
+                if(flags["small-world"].user[index].type == 0){
                     if($(element).hasClass(`small-world-display-default`)) {
                         $(element).css('display', "inherit")
                     }
-                }else if(message.data.flags["small-world"].user[index].type == 1){
+                }else if(flags["small-world"].user[index].type == 1){
                     if($(element).hasClass(`small-world-display-first`)) {
                         $(element).css('display', "inherit")
                     }
-                }else if(message.data.flags["small-world"].user[index].type == 2){
+                }else if(flags["small-world"].user[index].type == 2){
                     if($(element).hasClass(`small-world-display-second`)) {
                         $(element).css('display', "inherit")
                     }
@@ -383,7 +392,8 @@ Hooks.once("ready", async function(){
 
     await getTranslatablelist(true, true);
 
-    const chatControls = this.document.getElementById("chat-controls");
+    console.log(document.getElementById("chat-controls"))
+    const chatControls = document.getElementById("chat-controls");
     let translateButtons = chatControls.getElementsByClassName("translate-buttons")[0];
     let transResource0 = document.createElement("a");
     let transResource1 = document.createElement("a");
@@ -824,6 +834,8 @@ async function getOption(type, origin, select){
 async function translateUserSelect(event){
     event.preventDefault();
     const users = game.users.contents;
+    let flags;
+    if(isNewVersion) {flags = game.user.flags} else {flags = game.user.data.flags}
     let bilingal = await game.settings.get("small-world", "bilingual")
     let send;
     let def = [];
@@ -831,19 +843,19 @@ async function translateUserSelect(event){
         def.push({id:users[k].id, name:users[k].name, type:1})
     }
     send = [...def]
-    if(!game.user.data.flags["small-world"]){
+    if(!flags["small-world"]){
         await game.user.setFlag('small-world', "select-users", send)
     }else{
-        for(let i = 0; i < game.user.data.flags["small-world"]["select-users"].length; i++){
-            let index = send.findIndex(j => (j.id == game.user.data.flags["small-world"]["select-users"][i].id) && (j.name == game.user.data.flags["small-world"]["select-users"][i].name));
+        for(let i = 0; i < flags["small-world"]["select-users"].length; i++){
+            let index = send.findIndex(j => (j.id == flags["small-world"]["select-users"][i].id) && (j.name == flags["small-world"]["select-users"][i].name));
             if(index >= 0){
-                send[index] = {...game.user.data.flags["small-world"]["select-users"][i]}
+                send[index] = {...flags["small-world"]["select-users"][i]}
             }
         }
         if(!bilingal) send.forEach(k => {if(k.type == 2) k.type = 1});
         await game.user.setFlag('small-world', "select-users", send);
     }
-    const html = await renderTemplate('modules/small-world/templates/UserSelectDialog.html', {users:game.user.data.flags["small-world"]["select-users"], bilingal:bilingal});
+    const html = await renderTemplate('modules/small-world/templates/UserSelectDialog.html', {users:flags["small-world"]["select-users"], bilingal:bilingal});
     const data =  await new Promise(resolve => {
         const dlg = new SmallWorldDialog({
             title: game.i18n.localize("SMALLW.UserTargetLangSelect"),
@@ -1013,6 +1025,7 @@ class TransChat extends ChatLog {
 
 Hooks.on("chatMessage", async (chatLog, message, chatData) =>{
     let parse = TransChat.parse(message);
+    if(!chatData.flags) chatData.flags = {}
     let notskip = false
     switch (parse[0]) {
         case "roll": case "gmroll": case "blindroll": case "selfroll": case "publicroll": case "macro":
@@ -1025,7 +1038,9 @@ Hooks.on("chatMessage", async (chatLog, message, chatData) =>{
 
     if(!notskip){
         Hooks.once("preCreateChatMessage",(document, data, options, userId) => {
-            if(!document.data.flags.translate){
+            let flags;
+            if(isNewVersion) {flags = document.flags} else {flags = document.data.flags}
+            if(!flags.translate){
                 return false
             }
         });
